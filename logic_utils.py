@@ -6,7 +6,7 @@ def get_range_for_difficulty(difficulty: str):
 def parse_guess(raw: str):
     """
     Parse user input into an int guess.
-
+    
     Returns: (ok: bool, guess_int: int | None, error_message: str | None)
     """
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
@@ -15,12 +15,47 @@ def parse_guess(raw: str):
 def check_guess(guess, secret):
     """
     Compare guess to secret and return (outcome, message).
-
+    
     outcome examples: "Win", "Too High", "Too Low"
     """
-    raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
+    if guess == secret:
+        return "Win", "🎉 Correct!"
+
+    try:
+        if guess > secret:
+            # Player guessed above the secret, so they should go lower.
+            return "Too High", "📉 Go LOWER!"
+        else:
+            # Player guessed below the secret, so they should go higher.
+            return "Too Low", "📈 Go HIGHER!"
+    except TypeError:
+        # Preserve the original game's quirky behavior when secret isn't the same type.
+        g = str(guess)
+        if g == secret:
+            return "Win", "🎉 Correct!"
+        if g > secret:
+            return "Too High", "📉 Go LOWER!"
+        return "Too Low", "📈 Go HIGHER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
     """Update score based on outcome and attempt number."""
     raise NotImplementedError("Refactor this function from app.py into logic_utils.py")
+
+
+def reset_game_state(session_state, low: int, high: int):
+    """
+    Reset all per-round game state so a new round starts fresh.
+
+    This keeps the overall score intact while resetting:
+    - secret number (respecting the current difficulty range)
+    - attempt counter
+    - win/lose status flag
+    - guess history
+    """
+    import random
+
+    session_state.secret = random.randint(low, high)
+    session_state.attempts = 1
+    session_state.status = "playing"
+    session_state.history = []

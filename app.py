@@ -1,6 +1,8 @@
 import random
 import streamlit as st
 
+from logic_utils import reset_game_state
+
 def get_range_for_difficulty(difficulty: str):
     if difficulty == "Easy":
         return 1, 20
@@ -35,16 +37,20 @@ def check_guess(guess, secret):
 
     try:
         if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
+            # Player guessed above the secret, so they should go lower.
+            return "Too High", "📉 Go LOWER!"
         else:
-            return "Too Low", "📉 Go LOWER!"
+            # Player guessed below the secret, so they should go higher.
+            return "Too Low", "📈 Go HIGHER!"
     except TypeError:
         g = str(guess)
         if g == secret:
             return "Win", "🎉 Correct!"
         if g > secret:
-            return "Too High", "📈 Go HIGHER!"
-        return "Too Low", "📉 Go LOWER!"
+            # String comparison says guess is "above" the secret; still tell them to go lower.
+            return "Too High", "📉 Go LOWER!"
+        # Otherwise guess is "below" the secret; tell them to go higher.
+        return "Too Low", "📈 Go HIGHER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
@@ -107,6 +113,8 @@ if "history" not in st.session_state:
 st.subheader("Make a guess")
 
 st.info(
+    # FIXME: Hint text ignores difficulty range (always shows 1–100).
+    # This can mislead players because the actual secret range comes from get_range_for_difficulty.
     f"Guess a number between 1 and 100. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
@@ -132,8 +140,8 @@ with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
 if new_game:
-    st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
+    # Start a completely fresh round while keeping overall score.
+    reset_game_state(st.session_state, low=low, high=high)
     st.success("New game started.")
     st.rerun()
 
@@ -145,6 +153,8 @@ if st.session_state.status != "playing":
     st.stop()
 
 if submit:
+    # FIXME: Initial attempts and incrementing logic cause off-by-one behavior.
+    # attempts starts at 1 and is incremented here, so "Attempts left" and game-over checks don't match user expectations.
     st.session_state.attempts += 1
 
     ok, guess_int, err = parse_guess(raw_guess)
@@ -155,11 +165,15 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
+        # FIXME: Secret type flips between int and str, breaking comparisons.
+        # On even attempts secret becomes a string, which changes how check_guess compares guess vs secret.
         if st.session_state.attempts % 2 == 0:
             secret = str(st.session_state.secret)
         else:
             secret = st.session_state.secret
 
+        # FIXME: check_guess messages contradict "Too High"/"Too Low" outcome labels.
+        # The text says "Go HIGHER/LOWER" even when the outcome indicates the opposite direction.
         outcome, message = check_guess(guess_int, secret)
 
         if show_hint:
