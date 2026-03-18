@@ -36,7 +36,7 @@ To fix these issues, I reviewed the game state logic, corrected the hint behavio
 
 ## 📸 Demo
 
-![Winning Game Screenshot](gamewin.png)
+<img src="gamewin.png" alt="Winning Game Screenshot" />
 
 ## 🚀 Stretch Features
 
