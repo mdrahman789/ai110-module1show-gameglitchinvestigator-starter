@@ -25,13 +25,18 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+This project is a Streamlit number guessing game where the player tries to guess a secret number within a limited number of attempts. The game provides hints after each guess and includes different difficulty levels.
+
+The main bugs I found were:
+- The game did not restart properly after all attempts were used.
+- The hints were sometimes incorrect or misleading during gameplay.
+- The difficulty ranges for Easy, Normal, and Hard were not set correctly.
+
+To fix these issues, I reviewed the game state logic, corrected the hint behavior, and updated the difficulty range handling so that each mode matched its intended settings. I also tested the game after each change to make sure the fixes worked as expected.
 
 ## 📸 Demo
 
-- [ ] [Insert a screenshot of your fixed, winning game here]
+![Winning Game Screenshot](gamewin.png)
 
 ## 🚀 Stretch Features
 
